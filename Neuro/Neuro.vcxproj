@@ -20,11 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="NeuroNet.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Neuron.h" />
     <ClInclude Include="NeuroNet.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

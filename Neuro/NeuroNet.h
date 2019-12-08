@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Neuron.h"
 #include "matrix.h"
 
 class NeuroNet

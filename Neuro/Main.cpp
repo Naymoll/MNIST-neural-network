@@ -52,9 +52,9 @@ int main()
 		{
 			std::vector<double> inputs(input_nodes);
 
-			for (size_t i = 0; i < input_nodes; i++)
+			for (size_t k = 0; k < input_nodes; k++)
 			{
-				inputs[i] = (data_mnist[j][i + 1] / 255.0 * 0.99) + 0.01;
+				inputs[k] = data_mnist[j][k + 1] / 255.0 * 0.99 + 0.01;
 			}
 
 			std::vector<double> targets(output_nodes, 0.1);
@@ -70,12 +70,12 @@ int main()
 
 		for (size_t j = 0; j < input_nodes; j++)
 		{
-			inputs[j] = (data_mnist[i][j + 1] / 255.0 * 0.99) + 0.01;
+			inputs[j] = data_mnist[i][j + 1] / 255.0 * 0.99 + 0.01;
 		}
 
 		auto outpots = net.query(inputs);
 
-		double max = 0;
+		double max = 0.0;
 		int pos = 0;
 		for (size_t j = 0; j < outpots.size(); j++)
 		{
