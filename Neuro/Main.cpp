@@ -1,34 +1,93 @@
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <string>
 
-#include "Neuron.h"
+#include "NeuroNet.h"
 
 int main()
 {
-	Neuron* input_1 = new Neuron(1);
-	Neuron* input_2 = new Neuron(0);
+	std::fstream in;
+	in.open("./mnist_test_10.csv", std::fstream::in);
+	
+	std::vector<std::vector<double>> data_mnist(10);
 
-	Neuron* hiden_1 = new Neuron(Neuron::Type::Hidden);
-	Neuron* hiden_2 = new Neuron(Neuron::Type::Hidden);
+	for (size_t i = 0; i < data_mnist.size(); i++)
+	{
+		std::string str;
+		std::getline(in, str, '\n');
+		str.push_back('\n');
 
-	Neuron* output = new Neuron(Neuron::Type::Output);
+		bool ok = true;
+		char* end;
+		const char* c_str = str.c_str();
 
-	input_1->add_output_connection(hiden_1, 0.45f);
-	input_1->add_output_connection(hiden_2, 0.78f);
+		do
+		{
+			double value = std::strtod(c_str, &end);
+			data_mnist[i].push_back(value);
 
-	input_2->add_output_connection(hiden_1, -0.12f);
-	input_2->add_output_connection(hiden_2, 0.13f);
+			if (*end == ',')
+			{
+				end++;
+				c_str = end;
+			}
 
-	hiden_1->add_output_connection(output, 1.5f);
-	hiden_2->add_output_connection(output, -2.3f);
+		} while (*end != '\n');
+	}
 
-	input_1->activate();
-	input_2->activate();
-	hiden_1->activate();
-	hiden_2->activate();
-	output->activate();
+	int input_nodes = 784;
+	int hidden_nodes = 200;
+	int output_nodes = 10;
 
-	std::cout << output->output_value();
+	double training_rate = 0.2;
+
+	NeuroNet net(input_nodes, hidden_nodes, output_nodes, training_rate);
+
+	int epochs = 5;
+
+	for (size_t i = 0; i < epochs; i++)
+	{
+		for (size_t j = 0; j < data_mnist.size(); j++)
+		{
+			std::vector<double> inputs(input_nodes);
+
+			for (size_t i = 0; i < input_nodes; i++)
+			{
+				inputs[i] = (data_mnist[j][i + 1] / 255.0 * 0.99) + 0.01;
+			}
+
+			std::vector<double> targets(output_nodes, 0.1);
+			targets[data_mnist[j][0]] = 0.99;
+
+			net.train(inputs, targets);
+		}
+	}
+
+	for (size_t i = 0; i < data_mnist.size(); i++)
+	{
+		std::vector<double> inputs(input_nodes);
+
+		for (size_t j = 0; j < input_nodes; j++)
+		{
+			inputs[j] = (data_mnist[i][j + 1] / 255.0 * 0.99) + 0.01;
+		}
+
+		auto outpots = net.query(inputs);
+
+		double max = 0;
+		int pos = 0;
+		for (size_t j = 0; j < outpots.size(); j++)
+		{
+			if (outpots[j] > max)
+			{
+				max = outpots[j];
+				pos = j;
+			}
+		}
+
+		std::cout << "Input = " << data_mnist[i][0] << "; Neural net = " << pos << std::endl;
+	}
 
 	return 0;
 }
